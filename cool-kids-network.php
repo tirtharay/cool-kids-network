@@ -64,7 +64,7 @@ class CoolKidsNetwork {
         $blocks = [
             'cool-kids-login',
             'cool-kids-signup',
-
+            'cool-kids-profile'
         ];
 
         foreach ($blocks as $block) {
