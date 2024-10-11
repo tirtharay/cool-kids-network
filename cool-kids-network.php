@@ -72,17 +72,27 @@ class CoolKidsNetwork {
             $block_php_path = plugin_dir_path(__FILE__) . 'src/' . $block . '/block.php';
 
             // Check if block.php exists before including it
-            if (file_exists($block_php_path)) {
-                require_once $block_php_path;
+            // Include the block.php file for the profile block
+            require_once plugin_dir_path(__FILE__) . 'src/' . $block . '/block.php';
 
-                // Dynamically determine the render callback function name based on the block name
-                $function_name = 'render_' . str_replace('-', '_', $block) . '_form';
+            register_block_type($block_path, [
+                'render_callback' => 'render_cool_kids_login',
+                'render_callback' => 'render_cool_kids_signup',
+                'render_callback' => 'render_cool_kids_profile'
+            ]);
+        }
+    }
 
-                register_block_type($block_path, [
-                    'render_callback' => $function_name
-                ]);
-            } else {
-                register_block_type($block_path);
+    /**
+     * Redirect logged-in users to the profile page if they access certain blocks.
+     */
+    private function redirect_logged_in_users() {
+        // If the user is already logged in, redirect them to the profile page
+        if (is_user_logged_in()) {
+            $profile_page = get_page_by_path('profile');
+            if ($profile_page) {
+                wp_redirect(get_permalink($profile_page->ID));
+                exit;
             }
         }
     }
