@@ -17,6 +17,7 @@ class CoolKidsNetwork {
         // Register hooks
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
+        add_action('init', [$this, 'register_blocks']);
     }
 
     public function activate() {
@@ -57,6 +58,31 @@ class CoolKidsNetwork {
     private function set_permalinks() {
         update_option('permalink_structure', '/%postname%/');
         flush_rewrite_rules();
+    }
+
+    public function register_blocks() {
+        $blocks = [
+            'cool-kids-login'
+        ];
+
+        foreach ($blocks as $block) {
+            $block_path = plugin_dir_path(__FILE__) . 'build/' . $block;
+
+            if ($block === 'cool-kids-login') {
+
+                // Include the block.php file if it exists
+                $block_php_path = plugin_dir_path(__FILE__) . 'src/' . $block . '/block.php';
+                if (file_exists($block_php_path)) {
+                    require_once $block_php_path;
+                }
+
+                register_block_type($block_path, [
+                    'render_callback' => 'render_cool_kids_login_form'
+                ]);
+            } else {
+                register_block_type($block_path);
+            }
+        }
     }
 
 }
