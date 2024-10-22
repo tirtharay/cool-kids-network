@@ -7,8 +7,8 @@ function render_cool_kids_login($attributes, $content) {
     if (is_user_logged_in()) {
         $profile_page = get_page_by_path('profile');
         if ($profile_page) {
-            wp_redirect(get_permalink($profile_page->ID));
-            exit;
+            wp_safe_redirect(get_permalink($profile_page->ID));
+            exit; // Make sure to exit after redirection
         }
     } else {
         // If not logged in, render the login form
@@ -22,10 +22,11 @@ function render_cool_kids_login($attributes, $content) {
                 wp_set_auth_cookie($user->ID);
 
                 // Redirect to profile page after login
-                $profile_page = get_page_by_path('profile');
+                $profile_page = get_page_by_path('profile-page');
                 if ($profile_page) {
-                    wp_redirect(get_permalink($profile_page->ID));
-                    exit;
+                    // Redirect the user ONLY after successful registration
+                    wp_safe_redirect(get_permalink($profile_page->ID));
+                    exit; // Important to stop further execution after redirection
                 }
             } else {
                 echo '<div class="login-error">Invalid email address. Please try again.</div>';
