@@ -21,6 +21,9 @@ class CoolKidsNetwork {
 
         // Add profile picture field before the username field
         add_action('personal_options', [$this, 'display_profile_picture_field']);
+
+        // Redirect logged-in users if they try to access the login or signup page
+        add_action('template_redirect', [$this, 'redirect_logged_in_users']);
     }
 
     public function activate() {
@@ -92,7 +95,6 @@ class CoolKidsNetwork {
     public function display_profile_picture_field($user) {
         // Get the user's profile picture URL using your existing function
         $profile_picture_url = $this->get_user_profile_picture_url($user->ID);
-
         ?>
         <h3><?php _e('Profile Picture', 'cool-kids-network'); ?></h3>
         <table class="form-table">
@@ -117,6 +119,26 @@ class CoolKidsNetwork {
             return wp_get_attachment_url($attachment_id);
         }
         return false; // Fallback if no profile picture is set
+    }
+
+    // Redirect logged-in users if they try to access login or signup pages
+    public function redirect_logged_in_users() {
+        if (is_user_logged_in()) {
+            global $post;
+
+            // Define the login and signup page slugs (adjust if needed)
+            $login_slug = 'login-page';
+            $signup_slug = 'signup-page';
+
+            // Check if the user is on the login or signup page
+            if ($post && in_array($post->post_name, [$login_slug, $signup_slug])) {
+                $profile_page = get_page_by_path('profile-page');
+                if ($profile_page) {
+                    wp_redirect(get_permalink($profile_page->ID));
+                    exit;
+                }
+            }
+        }
     }
 }
 
