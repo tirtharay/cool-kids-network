@@ -7,7 +7,7 @@ if (!function_exists('download_url')) {
  * Renders the Cool Kids Signup block.
  */
 function render_cool_kids_signup($attributes, $content) {
-    // Start buffering output to prevent output before displaying form
+    // Start buffering output to prevent output before redirect
     ob_start();
 
     // Process the signup form submission
@@ -20,7 +20,7 @@ function render_cool_kids_signup($attributes, $content) {
         } elseif (email_exists($email)) {
             return '<div class="signup-error">Email already registered. Please use another email.</div>';
         } else {
-            $user_data = fetch_random_user_data();
+            $user_data = fetch_random_user_data(); // Assume this function is already in block.php
             if ($user_data) {
                 $first_name = sanitize_text_field($user_data['first_name']);
                 $last_name = sanitize_text_field($user_data['last_name']);
@@ -41,17 +41,23 @@ function render_cool_kids_signup($attributes, $content) {
 
                     // Save profile picture
                     if ($profile_picture_url) {
-                        $attachment_id = save_user_profile_picture($profile_picture_url, $user_id);
+                        $attachment_id = save_user_profile_picture($profile_picture_url, $user_id); // Assume this function is in block.php
                         if ($attachment_id) {
                             update_user_meta($user_id, 'profile_picture_id', $attachment_id);
                         }
                     }
 
-                    // Log the user in
+                    // Log the user in after registration
                     wp_set_current_user($user_id);
                     wp_set_auth_cookie($user_id);
 
-                    // Remove any redirection logic here, so you can handle it in cool-kids-network.php
+                    // Redirect to the profile page after registration and API processing
+                    $profile_page = get_page_by_path('profile-page'); // Adjust to your actual profile page slug
+                    if ($profile_page) {
+                        // Redirect the user ONLY after successful registration
+                        wp_safe_redirect(get_permalink($profile_page->ID));
+                        exit; // Important to stop further execution after redirection
+                    }
                 } else {
                     return '<div class="signup-error">An error occurred. Please try again.</div>';
                 }
