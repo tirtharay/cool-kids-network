@@ -24,6 +24,9 @@ class CoolKidsNetwork {
 
         // Redirect logged-in users if they try to access the login or signup page
         add_action('template_redirect', [$this, 'redirect_logged_in_users']);
+
+        // Remove admin bar for non-admin users
+        add_action('after_setup_theme', [$this, 'remove_admin_bar_for_non_admins']);
     }
 
     public function activate() {
@@ -140,6 +143,14 @@ class CoolKidsNetwork {
                     exit;
                 }
             }
+        }
+    }
+
+    // Remove admin bar for non-admin users
+    public function remove_admin_bar_for_non_admins() {
+        // Check if the current user is not an administrator and not in the admin panel
+        if (!current_user_can('administrator')) {
+            add_filter('show_admin_bar', '__return_false'); // Forcefully hide the admin bar
         }
     }
 }
