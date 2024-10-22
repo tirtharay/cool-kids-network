@@ -2,7 +2,7 @@
 /**
  * Renders the Cool Kids Login block.
  */
-function render_cool_kids_login_form($attributes, $content) {
+function render_cool_kids_login($attributes, $content) {
     // If the user is already logged in, redirect them to the profile page
     if (is_user_logged_in()) {
         $profile_page = get_page_by_path('profile');
