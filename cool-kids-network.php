@@ -77,7 +77,7 @@ class CoolKidsNetwork {
                 }
 
                 register_block_type($block_path, [
-                    'render_callback' => 'render_cool_kids_login_form'
+                    'render_callback' => 'render_cool_kids_login'
                 ]);
             } else {
                 register_block_type($block_path);
