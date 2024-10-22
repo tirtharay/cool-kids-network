@@ -1,16 +1,14 @@
 <?php
+if (!function_exists('download_url')) {
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+}
+
 /**
  * Renders the Cool Kids Signup block.
  */
-function render_cool_kids_signup_form($attributes, $content) {
-    // Check if the user is already logged in
-    if (is_user_logged_in()) {
-        $profile_page = get_page_by_path('profile');
-        if ($profile_page) {
-            wp_redirect(get_permalink($profile_page->ID));
-            exit;
-        }
-    }
+function render_cool_kids_signup($attributes, $content) {
+    // Start buffering output to prevent output before displaying form
+    ob_start();
 
     // Process the signup form submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ckn_signup_email'])) {
@@ -18,11 +16,10 @@ function render_cool_kids_signup_form($attributes, $content) {
 
         // Validate email
         if (!is_email($email)) {
-            echo '<div class="signup-error">Invalid email address. Please enter a valid email.</div>';
+            return '<div class="signup-error">Invalid email address. Please enter a valid email.</div>';
         } elseif (email_exists($email)) {
-            echo '<div class="signup-error">Email already registered. Please use another email.</div>';
+            return '<div class="signup-error">Email already registered. Please use another email.</div>';
         } else {
-            // Fetch additional user information from randomuser.me API
             $user_data = fetch_random_user_data();
             if ($user_data) {
                 $first_name = sanitize_text_field($user_data['first_name']);
@@ -33,7 +30,7 @@ function render_cool_kids_signup_form($attributes, $content) {
                 // Create the user
                 $user_id = wp_create_user($email, wp_generate_password(), $email);
                 if (!is_wp_error($user_id)) {
-                    // Update the user with additional information
+                    // Update user data
                     wp_update_user([
                         'ID' => $user_id,
                         'first_name' => $first_name,
@@ -54,34 +51,24 @@ function render_cool_kids_signup_form($attributes, $content) {
                     wp_set_current_user($user_id);
                     wp_set_auth_cookie($user_id);
 
-                    // Redirect to the profile page
-                    $profile_page = get_page_by_path('profile');
-                    if ($profile_page) {
-                        wp_redirect(get_permalink($profile_page->ID));
-                        exit;
-                    }
-
-                    echo '<div class="signup-success">Account created successfully. Redirecting to your profile...</div>';
+                    // Remove any redirection logic here, so you can handle it in cool-kids-network.php
                 } else {
-                    echo '<div class="signup-error">An error occurred. Please try again.</div>';
+                    return '<div class="signup-error">An error occurred. Please try again.</div>';
                 }
             } else {
-                echo '<div class="signup-error">Failed to fetch user data. Please try again later.</div>';
+                return '<div class="signup-error">Failed to fetch user data. Please try again later.</div>';
             }
         }
     }
 
-    // The HTML for the signup form
-    ob_start();
-    ?>
+    // Display the signup form
+    return ob_get_clean() . '
     <div class="cool-kids-signup-form">
         <form method="post">
             <input type="email" name="ckn_signup_email" placeholder="Enter your email address" required>
             <button type="submit">Confirm</button>
         </form>
-    </div>
-    <?php
-    return ob_get_clean();
+    </div>';
 }
 
 /**
