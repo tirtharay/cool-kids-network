@@ -42,6 +42,9 @@ class CoolKidsNetwork {
         // Remove admin bar for non-admin users
         add_action('after_setup_theme', [$this, 'remove_admin_bar_for_non_admins']);
 
+        // Add the admin notice after activation
+        add_action('admin_notices', [$this, 'display_recommendation_notice']);
+
         // Initialize the CoolKidsAdmin class for the admin panel
         new CoolKidsAdmin();
     }
@@ -49,6 +52,9 @@ class CoolKidsNetwork {
     public function activate() {
         $this->create_roles();
         $this->set_permalinks();
+
+        // Set a transient to show the admin notice after activation
+        set_transient('cool_kids_theme_recommendation', true, 5);
     }
 
     public function deactivate() {
@@ -168,6 +174,30 @@ class CoolKidsNetwork {
         // Check if the current user is not an administrator and not in the admin panel
         if (!current_user_can('administrator')) {
             add_filter('show_admin_bar', '__return_false'); // Forcefully hide the admin bar
+        }
+    }
+
+    /**
+     * Display the admin notice recommending the COOL Kids theme.
+     */
+    public function display_recommendation_notice() {
+        // Check if the transient is set
+        if (get_transient('cool_kids_theme_recommendation')) {
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                    <?php _e('<strong>Enhance Your Cool Kids Network Experience!</strong>
+                    The <strong>Cool Kids Network Plugin</strong> works perfectly with any theme,
+                    but for the ultimate interactive experience, we highly recommend downloading
+                    the <strong>Cool Kids Network Theme</strong>. With the theme, you\'ll unlock
+                    additional features, optimized layouts, and a fully immersive design tailored
+                    specifically for the Cool Kids Network. <a href="#">Click here to download the Cool Kids Network Theme now</a>.',
+                    'cool-kids-network'); ?>
+                </p>
+            </div>
+            <?php
+            // Delete the transient so the message only shows once
+            delete_transient('cool_kids_theme_recommendation');
         }
     }
 }
