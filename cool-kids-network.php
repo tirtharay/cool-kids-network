@@ -11,6 +11,20 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+/**
+ * Autoloader for Cool Kids Network classes
+ */
+spl_autoload_register(function ($class_name) {
+    // Check if the class belongs to this plugin's namespace
+    if (strpos($class_name, 'CoolKids') !== false) {
+        $class_file = plugin_dir_path(__FILE__) . 'includes/' . strtolower($class_name) . '.php';
+
+        if (file_exists($class_file)) {
+            require_once $class_file;
+        }
+    }
+});
+
 class CoolKidsNetwork {
 
     public function __construct() {
@@ -27,6 +41,9 @@ class CoolKidsNetwork {
 
         // Remove admin bar for non-admin users
         add_action('after_setup_theme', [$this, 'remove_admin_bar_for_non_admins']);
+
+        // Initialize the CoolKidsAdmin class for the admin panel
+        new CoolKidsAdmin();
     }
 
     public function activate() {
