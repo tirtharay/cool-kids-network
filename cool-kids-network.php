@@ -48,6 +48,9 @@ class CoolKidsNetwork {
         // Initialize the CoolKidsAdmin class for the admin panel
         new CoolKidsAdmin();
 
+        // Display the success notice if demo users were generated
+        add_action('admin_notices', [$this, 'show_demo_users_success_notice']);
+
         // Initialize the User Role Fields settings page
         new CoolKidsUserRoleFields();
 
@@ -160,6 +163,19 @@ class CoolKidsNetwork {
             } else {
                 register_block_type($block_path);
             }
+        }
+    }
+
+    public function show_demo_users_success_notice() {
+        // Check if the transient is set
+        if (get_transient('cool_kids_demo_users_success')) {
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php esc_html_e('Demo users generated successfully!', 'cool-kids-network'); ?></p>
+            </div>
+            <?php
+            // Delete the transient so the message only shows once
+            delete_transient('cool_kids_demo_users_success');
         }
     }
 

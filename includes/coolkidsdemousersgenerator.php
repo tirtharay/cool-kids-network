@@ -24,16 +24,22 @@ class CoolKidsDemoUsersGenerator {
             <p><button type="submit" class="button button-primary"><?php esc_html_e('Create', 'cool-kids-network'); ?></button></p>
         </form>
         <?php
+
+        if (isset($_POST['generate_users'])) {
+            $this->generate_demo_users(intval($_POST['number_of_users']));
+        }
     }
 
     /**
      * Handle the form submission to generate demo users from the API.
      */
-    public function generate_demo_users() {
+    public function generate_demo_users($number_of_users) {
         // Check for nonce validation
         if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'generate_demo_users_nonce')) {
             wp_die('Security check failed.');
         }
+        // Set a transient to indicate success
+        set_transient('cool_kids_demo_users_success', true, 5); // Expires after 5 seconds
 
         // Get the number of users to generate from the form input
         $num_users = intval($_POST['number_of_users']);
