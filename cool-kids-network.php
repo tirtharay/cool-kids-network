@@ -56,9 +56,48 @@ class CoolKidsNetwork {
     public function activate() {
         $this->create_roles();
         $this->set_permalinks();
+        $this->create_pages();
 
         // Set a transient to show the admin notice after activation
         set_transient('cool_kids_theme_recommendation', true, 5);
+    }
+
+    /**
+     * Creates the necessary pages for the plugin
+     *
+     * @return void
+     */
+    private function create_pages() {
+        $pages = [
+            'login-page' => [
+                'title' => 'Login Page',
+                'content' => '<!-- wp:cool-kids-network/cool-kids-login /-->'
+            ],
+            'profile-page' => [
+                'title' => 'Profile Page',
+                'content' => '<!-- wp:cool-kids-network/cool-kids-profile /-->'
+            ],
+            'signup-page' => [
+                'title' => 'SignUp Page',
+                'content' => '<!-- wp:cool-kids-network/cool-kids-signup /-->'
+            ],
+            'user-directory' => [
+                'title' => 'User Directory',
+                'content' => '<!-- wp:cool-kids-network/cool-kids-user-directory /-->'
+            ]
+        ];
+
+        foreach ($pages as $slug => $page) {
+            if (!get_page_by_path($slug)) {
+                wp_insert_post([
+                    'post_title' => $page['title'],
+                    'post_name' => $slug,
+                    'post_content' => $page['content'],
+                    'post_status' => 'publish',
+                    'post_type' => 'page'
+                ]);
+            }
+        }
     }
 
     public function deactivate() {
