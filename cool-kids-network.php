@@ -47,6 +47,10 @@ class CoolKidsNetwork {
 
         // Initialize the CoolKidsAdmin class for the admin panel
         new CoolKidsAdmin();
+
+        // Initialize the User Role Fields settings page
+        new CoolKidsUserRoleFields();
+
     }
 
     public function activate() {
